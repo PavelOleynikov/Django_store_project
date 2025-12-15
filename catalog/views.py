@@ -1,9 +1,18 @@
+from typing import Any
+
 from django.shortcuts import render
+from django.http import HttpResponse
 
 
-def home(request):
+def home(request: Any) -> HttpResponse:
     return render(request, "catalog/home.html")
 
 
-def contacts(request):
+def contacts(request: Any) -> HttpResponse:
+    if request.method == "POST":
+        name = request.POST.get("name")
+        phone = request.POST.get("phone")
+        message = request.POST.get("message")
+
+        return HttpResponse(f"Спасибо, {name}! Сообщение получено.")
     return render(request, "catalog/contacts.html")
