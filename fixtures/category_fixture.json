@@ -1,0 +1,26 @@
+[
+{
+    "model": "catalog.category",
+    "pk": 3,
+    "fields": {
+        "name": "продукты",
+        "description": "овощи"
+    }
+},
+{
+    "model": "catalog.category",
+    "pk": 4,
+    "fields": {
+        "name": "электроника",
+        "description": "электронные устройства"
+    }
+},
+{
+    "model": "catalog.category",
+    "pk": 5,
+    "fields": {
+        "name": "мебель",
+        "description": "домашняя мебель"
+    }
+}
+]
