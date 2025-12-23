@@ -1,7 +1,7 @@
 from django.db import models
 
 class Category(models.Model):
-    name = models.CharField(max_length=150, verbose_name="Наименование")
+    name = models.CharField(max_length=150, verbose_name="Наименование категории")
     description = models.TextField(null=True, blank=True, verbose_name="Описание")
 
     def __str__(self):
@@ -15,10 +15,10 @@ class Category(models.Model):
 
 
 class Product(models.Model):
-    name = models.CharField(max_length=150, verbose_name="Наименование")
+    name = models.CharField(max_length=150, verbose_name="Наименование продукта")
     description = models.TextField(null=True, blank=True, verbose_name="Описание")
-    image = models.ImageField(upload_to='photos/', verbose_name="Изображение")
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="catalog", verbose_name="Категория")
+    image = models.ImageField(upload_to="media/images", verbose_name="Изображение", null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, related_name="products", null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена за покупку")
     created_at = models.DateTimeField(auto_now=True, verbose_name="Дата создания")
     updated_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата последнего изменения")
