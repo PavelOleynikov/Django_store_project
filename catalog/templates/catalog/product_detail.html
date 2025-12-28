@@ -1,0 +1,77 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <!-- Карточка товара -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">{{ product.name }}</h2>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Изображение товара -->
+                        {% if product.image %}
+                        <div class="col-md-6">
+                            <img src="{{ product.image.url }}"
+                                 alt="{{ product.name }}"
+                                 class="img-fluid rounded mb-3"
+                                 style="max-height: 400px; object-fit: cover;">
+                        </div>
+                        {% endif %}
+
+                        <div class="{% if product.image %}col-md-6{% else %}col-12{% endif %}">
+                            <h5 class="text-muted">Описание товара</h5>
+                            <p class="lead">{{ product.description }}</p>
+
+                            <hr>
+
+                            <div class="mb-3">
+                                <span class="badge bg-primary fs-6">Цена: {{ product.price }} руб.</span>
+                            </div>
+
+                            <ul class="list-group list-group-flush">
+                                <!-- Категория -->
+                                <li class="list-group-item">
+                                    <strong>Категория:</strong>
+                                    {% if product.category %}
+                                    {{ product.category.name }}
+                                    {% else %}
+                                    <span class="text-muted">Не указана</span>
+                                    {% endif %}
+                                </li>
+
+                                <!-- Дата добавления -->
+                                <li class="list-group-item">
+                                    <strong>Дата добавления:</strong> {{ product.created_at|date:"d.m.Y H:i" }}
+                                </li>
+
+                                <!-- Дата обновления -->
+                                <li class="list-group-item">
+                                    <strong>Последнее обновление:</strong> {{ product.updated_at|date:"d.m.Y H:i" }}
+                                </li>
+                            </ul>
+
+                            <div class="mt-4">
+
+                                <a href="{% url 'catalog:home' %}" class="btn btn-primary">
+                                    ← Назад к каталогу
+                                </a>
+
+                                <button class="btn btn-success ms-2">
+                                    В корзину
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
