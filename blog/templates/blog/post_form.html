@@ -1,0 +1,219 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}
+{% if form.instance.pk %}Редактирование статьи{% else %}Новая статья{% endif %} - Блог
+{% endblock %}
+
+{% block page_title %}
+{% if form.instance.pk %}
+<i class="bi bi-pencil"></i> Редактирование статьи
+{% else %}
+<i class="bi bi-plus-circle"></i> Новая статья
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    {% if form.instance.pk %}
+                    <i class="bi bi-pencil-square"></i> Редактирование: {{ form.instance.title }}
+                    {% else %}
+                    <i class="bi bi-file-earmark-plus"></i> Создание новой статьи
+                    {% endif %}
+                </h5>
+            </div>
+
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Поле заголовка -->
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">
+                            <i class="bi bi-card-heading"></i> Заголовок *
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.title.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">Максимум 150 символов</div>
+                    </div>
+
+                    <!-- Поле содержимого -->
+                    <div class="mb-3">
+                        <label for="{{ form.content.id_for_label }}" class="form-label">
+                            <i class="bi bi-text-paragraph"></i> Содержимое *
+                        </label>
+                        {{ form.content }}
+                        {% if form.content.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.content.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Поле изображения -->
+                    <div class="mb-3">
+                        <label for="{{ form.preview.id_for_label }}" class="form-label">
+                            <i class="bi bi-image"></i> Превью
+                        </label>
+
+                        {% if form.instance.preview %}
+                        <div class="mb-2">
+                            <img src="{{ form.instance.preview.url }}"
+                                 alt="Текущее превью"
+                                 class="img-thumbnail"
+                                 style="max-width: 200px;"
+                                 onerror="this.style.display='none'">
+                            <div class="form-text">Текущее изображение</div>
+                        </div>
+                        {% endif %}
+
+                        {{ form.preview }}
+                        {% if form.preview.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.preview.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">Загрузите изображение для превью статьи (опционально)</div>
+                    </div>
+
+                    <!-- Поле публикации -->
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            {{ form.is_published }}
+                            <label class="form-check-label" for="{{ form.is_published.id_for_label }}">
+                                Опубликовать статью
+                            </label>
+                        </div>
+                        {% if form.is_published.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.is_published.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Если включено, статья будет видна всем пользователям.
+                            Если выключено - только в админке.
+                        </div>
+                    </div>
+
+                    <!-- Кнопки -->
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i>
+                                {% if form.instance.pk %}Обновить{% else %}Создать{% endif %}
+                            </button>
+                            <a href="{% if form.instance.pk %}{% url 'blog:post_detail' form.instance.pk %}{% else %}{% url 'blog:post_list' %}{% endif %}"
+                               class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Отмена
+                            </a>
+                        </div>
+
+                        {% if form.instance.pk %}
+                        <a href="{% url 'blog:post_delete' form.instance.pk %}"
+                           class="btn btn-danger"
+                           onclick="return confirm('Удалить эту статью?')">
+                            <i class="bi bi-trash"></i> Удалить
+                        </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+
+            {% if form.instance.pk %}
+            <div class="card-footer text-muted">
+                <small>
+                    <i class="bi bi-info-circle"></i>
+                    Статья создана: {{ form.instance.created_at|date:"d.m.Y H:i" }} |
+                    Просмотров: {{ form.instance.views_count }}
+                </small>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    textarea {
+        min-height: 300px;
+        resize: vertical;
+    }
+    input[type="text"], textarea {
+        font-size: 1rem;
+    }
+    .form-check-input:checked {
+        background-color: #198754;
+        border-color: #198754;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Добавляем Bootstrap классы к полям формы
+        const inputs = document.querySelectorAll('input[type="text"], textarea, select');
+        inputs.forEach(input => {
+            input.classList.add('form-control');
+        });
+
+        // Добавляем класс для поля checkbox
+        const checkbox = document.getElementById('{{ form.is_published.id_for_label }}');
+        if (checkbox) {
+            checkbox.classList.add('form-check-input');
+        }
+
+        // Валидация формы
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(event) {
+            const title = document.getElementById('{{ form.title.id_for_label }}');
+            const content = document.getElementById('{{ form.content.id_for_label }}');
+
+            let isValid = true;
+
+            if (!title.value.trim()) {
+                title.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                title.classList.remove('is-invalid');
+            }
+
+            if (!content.value.trim()) {
+                content.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                content.classList.remove('is-invalid');
+            }
+
+            if (!isValid) {
+                event.preventDefault();
+                alert('Пожалуйста, заполните обязательные поля (отмечены *).');
+            }
+        });
+    });
+</script>
+{% endblock %}
