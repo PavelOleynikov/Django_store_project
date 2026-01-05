@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Блог{% endblock %}</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <style>
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+        .post-content img {
+            max-width: 100%;
+            height: auto;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: auto;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .main-content {
+            flex: 1;
+        }
+        .views-count {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .post-meta {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+<!-- Главное меню -->
+{% include 'blog/main_menu.html' %}
+
+<!-- Основной контент -->
+<main class="main-content">
+    <div class="container mt-4 mb-5">
+        <!-- Сообщения -->
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Заголовок страницы -->
+        <div class="mb-4">
+            {% block page_header %}
+            <h1 class="mb-3">{% block page_title %}{% endblock %}</h1>
+            {% endblock %}
+        </div>
+
+        <!-- Контент -->
+        {% block content %}{% endblock %}
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="footer mt-auto py-3 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <span class="text-muted">© {% now "Y" %} Блог. Все права защищены.</span>
+            </div>
+            <div class="col-md-6 text-end">
+                <span class="text-muted">Сделано на Django + Bootstrap</span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Дополнительные скрипты -->
+{% block extra_js %}{% endblock %}
+
+<script>
+    // Автоматическое скрытие алертов через 5 секунд
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    });
+</script>
+</body>
+</html>
