@@ -5,7 +5,7 @@ from catalog.models import Product
 
 
 class ProductForm(forms.ModelForm):
-    """Класс-форма для создания и редактирования продуктов с валидацией"""
+    """Класс-форма для создания и редактирования продуктов с валидацией и стилизацией"""
 
     # Константа с запрещенными словами
     FORBIDDEN_WORDS = [
@@ -30,6 +30,16 @@ class ProductForm(forms.ModelForm):
             "price",
         ]
 
+    def __init__(self, *args, **kwargs):
+        """Настройка стилей для полей формы"""
+
+        super(ProductForm, self).__init__(*args, **kwargs)
+        self.fields["name"].widget.attrs.update({"class": "form-control", "placeholder": "Введите название"})
+        self.fields["description"].widget.attrs.update({"class": "form-control", "placeholder": "Введите описание"})
+        self.fields["category"].widget.attrs.update({"class": "form-select"})
+        self.fields["image"].widget.attrs.update({"class": "form-control", "type": "file"})
+        self.fields["price"].widget.attrs.update({"class": "form-control", "placeholder": "Введите цену"})
+
     def _get_forbidden_words_in_text(self, text):
         """Общий метод для поиска запрещенных слов в тексте"""
 
@@ -39,7 +49,7 @@ class ProductForm(forms.ModelForm):
         return [word for word in self.FORBIDDEN_WORDS if word in text_lower]
 
     def clean_name(self):
-        """Валидация поля 'name' на запрещенные слова"""
+        """Валидация поля 'название' на запрещенные слова"""
 
         name = self.cleaned_data.get("name")
         found_words = self._get_forbidden_words_in_text(name)
@@ -63,3 +73,11 @@ class ProductForm(forms.ModelForm):
         if price is not None and price <= 0:
             raise ValidationError("Цена должна быть положительной")
         return price
+
+    example_checkbox = forms.BooleanField(
+        required=False,
+        initial=True,
+        label="Пример чекбокса",
+        help_text="для демонстрации стилизации",
+        widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
+    )
