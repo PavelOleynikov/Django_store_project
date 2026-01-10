@@ -66,6 +66,12 @@
                                 <button class="btn btn-success ms-2">
                                     В корзину
                                 </button>
+                                <a href="{% url 'catalog:product_edit' pk=product.pk %}" class="btn btn-secondary mt-2">
+                                    Редактировать
+                                </a>
+                                <a href="{% url 'catalog:product_delete' pk=product.pk %}" class="btn btn-danger mt-2">
+                                    🗑️ Удалить
+                                </a>
                             </div>
                         </div>
                     </div>
