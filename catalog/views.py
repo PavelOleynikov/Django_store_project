@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import reverse_lazy
@@ -41,7 +42,7 @@ class CatalogDetailView(DetailView):
     context_object_name = "product"
 
 
-class CatalogCreateView(CreateView):
+class CatalogCreateView(LoginRequiredMixin, CreateView):
     """Создание нового продукта"""
 
     model = Product
@@ -50,7 +51,7 @@ class CatalogCreateView(CreateView):
     success_url = reverse_lazy("catalog:home")
 
 
-class CatalogUpdateView(UpdateView):
+class CatalogUpdateView(LoginRequiredMixin, UpdateView):
     """Редактирование продукта"""
 
     model = Product
@@ -63,7 +64,7 @@ class CatalogUpdateView(UpdateView):
         return reverse_lazy("catalog:product_detail", kwargs={"pk": self.object.pk})
 
 
-class CatalogDeleteView(DeleteView):
+class CatalogDeleteView(LoginRequiredMixin, DeleteView):
     """Удаление продукта"""
 
     model = Product

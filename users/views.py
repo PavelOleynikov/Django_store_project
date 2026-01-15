@@ -2,10 +2,13 @@ from django.core.mail import send_mail
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 
+from config import settings
 from .forms import CustomUserCreationForm
 
 
 class RegisterView(CreateView):
+    """Регистрация нового пользователя"""
+
     template_name = "users/register.html"
     form_class = CustomUserCreationForm
     success_url = reverse_lazy("catalog:home")
@@ -16,8 +19,10 @@ class RegisterView(CreateView):
         return super().form_valid(form)
 
     def send_welcome_email(self, user_email):
-        subject = "Добро пожаловать в наш сервис"
-        message = "Спасибо, что зарегистрировались в нашем сервисе!"
-        from_email = "79276552552@yandex.ru"
-        recipient_list = [user_email]
+        """Отправляет приветственное письмо пользователю"""
+
+        subject = "Добро пожаловать в наш сервис Skystore!"
+        message = "Спасибо, что зарегистрировались в нашем интернет-магазине!"
+        from_email = settings.DEFAULT_FROM_EMAIL
+        recipient_list = [user_email]  # список получателей
         send_mail(subject, message, from_email, recipient_list)
