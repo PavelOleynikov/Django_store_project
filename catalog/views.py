@@ -34,7 +34,7 @@ class ContactsView(View):
         return HttpResponse(f"Спасибо, {name}! Сообщение получено.")
 
 
-class CatalogDetailView(DetailView):
+class CatalogDetailView(LoginRequiredMixin, DetailView):
     """Контроллер для отображения детальной информации о товаре"""
 
     model = Product
