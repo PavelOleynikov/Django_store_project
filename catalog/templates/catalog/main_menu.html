@@ -2,4 +2,15 @@
     <a class="p-2 btn btn-outline-primary" href="{% url 'catalog:home' %}">Каталог</a>
     <a class="p-2 btn btn-outline-primary" href="{% url 'catalog:contacts' %}">Контакты</a>
     <a class="p-2 btn btn-outline-primary" href="{% url 'catalog:product_new' %}">Добавить продукт</a>
+    {% if user.is_authenticated %}
+    <p>Добро пожаловать, {{ user.username }}!</p>
+    <form method="post" action="{% url 'users:logout' %}" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" class="p-2 btn btn-outline-primary">Выйти</button>
+    </form>
+    {% else %}
+    <p>Добро пожаловать на сайт Skystore!</p>
+    <a class="p-2 btn btn-outline-primary" href="{% url 'users:login' %}">Войти</a>
+    <a class="p-2 btn btn-outline-primary" href="{% url 'users:register' %}">Зарегистрироваться</a>
+    {% endif %}
 </nav>
