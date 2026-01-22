@@ -12,4 +12,5 @@ urlpatterns = [
     path("products/new/", views.CatalogCreateView.as_view(), name="product_new"),
     path("products/<int:pk>/edit/", views.CatalogUpdateView.as_view(), name="product_edit"),
     path("products/<int:pk>/delete/", views.CatalogDeleteView.as_view(), name="product_delete"),
+    path("products/<int:pk>/unpublish/", views.ProductUnpublishView.as_view(), name="product_unpublish"),
 ]

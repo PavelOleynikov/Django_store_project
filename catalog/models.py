@@ -27,7 +27,7 @@ class Product(models.Model):
     status = models.CharField(
         max_length=25,
         choices=PUBLIC_STATUS,
-        default="public",
+        default="unpublic",
         verbose_name="Статус публикации",
     )
 
