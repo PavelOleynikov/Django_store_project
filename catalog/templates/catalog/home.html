@@ -12,48 +12,51 @@
 <div class="container">
     <div class="row">
         {% if products %}
-            {% for product in products %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 box-shadow">
-                    <!-- 1. Изображение товара -->
-                    {% if product.image %}
-                    <img src="{{ product.image.url }}"
-                         class="card-img-top"
-                         alt="{{ product.name }}"
-                         style="height: 200px; object-fit: cover;">
-                    {% else %}
-                    <!-- Заглушка если нет изображения -->
-                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
-                         style="height: 200px;">
-                        <span class="text-muted">Нет изображения</span>
-                    </div>
+        {% for product in products %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 box-shadow">
+                <!-- 1. Изображение товара -->
+                {% if product.image %}
+                <img src="{{ product.image.url }}"
+                     class="card-img-top"
+                     alt="{{ product.name }}"
+                     style="height: 200px; object-fit: cover;">
+                {% else %}
+                <!-- Заглушка если нет изображения -->
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                     style="height: 200px;">
+                    <span class="text-muted">Нет изображения</span>
+                </div>
+                {% endif %}
+
+                <div class="card-body">
+                    <!-- 2. Название товара -->
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <!-- Индикатор владельца -->
+                    {% if user.is_authenticated and product.owner == user %}
+                    <span class="badge bg-primary mb-2">Ваш продукт</span>
                     {% endif %}
+                    <!-- 3. Описание (обрезанное до 100 символов) -->
+                    <p class="card-text">
+                        {{ product.description|truncatechars:100 }}
+                    </p>
 
-                    <div class="card-body">
-                        <!-- 2. Название товара -->
-                        <h5 class="card-title">{{ product.name }}</h5>
-
-                        <!-- 3. Описание (обрезанное до 100 символов) -->
-                        <p class="card-text">
-                            {{ product.description|truncatechars:100 }}
-                        </p>
-
-                        <!-- Ссылка на детальную страницу -->
-                        <a href="{% url 'catalog:product_detail' pk=product.id %}"
-                           class="btn btn-outline-primary w-100">
-                            Подробнее
-                        </a>
-                    </div>
+                    <!-- Ссылка на детальную страницу -->
+                    <a href="{% url 'catalog:product_detail' pk=product.id %}"
+                       class="btn btn-outline-primary w-100">
+                        Подробнее
+                    </a>
                 </div>
             </div>
-            {% endfor %}
+        </div>
+        {% endfor %}
         {% else %}
-            <div class="col-12">
-                <div class="alert alert-info" role="alert">
-                    <h4 class="alert-heading">Товаров пока нет!</h4>
-                    <p>Товары еще не добавлены в каталог.</p>
-                </div>
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <h4 class="alert-heading">Товаров пока нет!</h4>
+                <p>Товары еще не добавлены в каталог.</p>
             </div>
+        </div>
         {% endif %}
     </div>
 </div>

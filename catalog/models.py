@@ -1,5 +1,7 @@
 from django.db import models
 
+from users.models import CustomUser
+
 
 class Category(models.Model):
     name = models.CharField(max_length=150, verbose_name="Наименование категории")
@@ -29,6 +31,14 @@ class Product(models.Model):
         choices=PUBLIC_STATUS,
         default="unpublic",
         verbose_name="Статус публикации",
+    )
+    owner = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="products",
+        verbose_name="Владелец",
+        null=True,  # временно, чтобы не было ошибок при миграции
+        blank=True,
     )
 
     def __str__(self):

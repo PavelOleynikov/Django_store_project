@@ -60,6 +60,7 @@
                                     {% else %}
                                     Не опубликовано
                                     {% endif %}
+                                    <span class="badge bg-info ms-2">Владелец: {{ product.owner.email|default:"Не назначен" }}</span>
                                 </li>
 
                                 <!-- Дата добавления -->
@@ -82,20 +83,26 @@
                                 <button class="btn btn-success ms-2">
                                     В корзину
                                 </button>
-                                <!-- Кнопка редактирования (для всех авторизованных) -->
-                                {% if user.is_authenticated %}
+                                <!-- Кнопка редактирования (только для владельца) -->
+                                {% if user.is_authenticated and product.owner == user %}
                                 <a href="{% url 'catalog:product_edit' pk=product.pk %}" class="btn btn-secondary mt-2">
                                     Редактировать
                                 </a>
                                 {% endif %}
-                                <!-- Кнопка удаления (только для модераторов) -->
-                                {% if perms.catalog.can_delete_product %}
+                                <!-- Кнопка удаления (только для владельца) -->
+                                {% if user.is_authenticated and product.owner == user %}
                                 <a href="{% url 'catalog:product_delete' pk=product.pk %}" class="btn btn-danger mt-2">
                                     🗑️ Удалить
                                 </a>
                                 {% endif %}
-                                <!-- Кнопка отмены публикации (только для модераторов и только если товар опубликован) -->
-                                {% if perms.catalog.can_unpublish_product and product.status == "public" %}
+                                {% if perms.catalog.can_delete_product and product.owner != user %}
+                                <a href="{% url 'catalog:product_delete' pk=product.pk %}"
+                                   class="btn btn-outline-danger mt-2">
+                                    🗑️ Удалить (как модератор)
+                                </a>
+                                {% endif %}
+                                <!-- Кнопка отмены публикации (только для модераторов) -->
+                                {% if perms.catalog.can_unpublish_product %}
                                 <a href="{% url 'catalog:product_unpublish' pk=product.pk %}" class="btn btn-warning">
                                     ⏸️ Отменить публикацию
                                 </a>

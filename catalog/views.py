@@ -1,11 +1,40 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, View, CreateView, UpdateView, DeleteView
 
 from catalog.forms import ProductForm
 from catalog.models import Product
+
+
+class OwnerRequiredMixin:
+    """Миксин для проверки, что пользователь - владелец продукта"""
+
+    def dispatch(self, request, *args, **kwargs):
+        product = self.get_object()
+
+        # Проверяем, является ли пользователь владельцем
+        if product.owner != request.user:
+            return redirect("catalog:product_detail", pk=product.pk)
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class OwnerOrModeratorRequiredMixin:
+    """Миксин для проверки, что пользователь - владелец или имеет право на удаление"""
+
+    def dispatch(self, request, *args, **kwargs):
+        product = self.get_object()
+
+        # Владелец ИЛИ пользователь с правом can_delete_product (модератор)
+        is_owner = product.owner == request.user
+        is_moderator = request.user.has_perm("catalog.can_delete_product")
+
+        if not (is_owner or is_moderator):
+            return redirect("catalog:product_detail", pk=product.pk)
+
+        return super().dispatch(request, *args, **kwargs)
 
 
 class ProductUnpublishView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
@@ -36,14 +65,29 @@ class CatalogListView(ListView):
     context_object_name = "products"
 
     def get_queryset(self):
+        # СУПЕРПОЛЬЗОВАТЕЛЬ видит ВСЕ продукты
+        if self.request.user.is_superuser:
+            return Product.objects.all()
 
+        # МОДЕРАТОРЫ (с правами) видят ВСЕ продукты
         if self.request.user.is_authenticated and (
             self.request.user.has_perm("catalog.can_unpublish_product")
             or self.request.user.has_perm("catalog.can_delete_product")
         ):
-
             return Product.objects.all()
+
+        # ОБЫЧНЫЙ АВТОРИЗОВАННЫЙ пользователь видит только опубликованные продукты
+        if self.request.user.is_authenticated:
+            return Product.objects.filter(status="public")
+
+        # НЕАВТОРИЗОВАННЫЙ пользователь видит только опубликованные
         return Product.objects.filter(status="public")
+
+    def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+        context["user"] = self.request.user
+        return context
 
 
 class ContactsView(View):
@@ -90,8 +134,13 @@ class CatalogCreateView(LoginRequiredMixin, CreateView):
     template_name = "catalog/product_form.html"
     success_url = reverse_lazy("catalog:home")
 
+    def form_valid(self, form):
+        product = form.save(commit=False)
+        product.owner = self.request.user  # Назначаем текущего пользователя владельцем
+        return super().form_valid(form)
 
-class CatalogUpdateView(LoginRequiredMixin, UpdateView):
+
+class CatalogUpdateView(LoginRequiredMixin, OwnerRequiredMixin, UpdateView):
     """Редактирование продукта"""
 
     model = Product
@@ -104,10 +153,9 @@ class CatalogUpdateView(LoginRequiredMixin, UpdateView):
         return reverse_lazy("catalog:product_detail", kwargs={"pk": self.object.pk})
 
 
-class CatalogDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
-    """Удаление продукта - только для модераторов"""
+class CatalogDeleteView(LoginRequiredMixin, OwnerOrModeratorRequiredMixin, DeleteView):
+    """Удаление продукта - для владельца или модератора"""
 
     model = Product
-    permission_required = "catalog.can_delete_product"
     template_name = "catalog/product_confirm_delete.html"
     success_url = reverse_lazy("catalog:home")
