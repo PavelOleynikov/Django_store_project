@@ -28,6 +28,7 @@ class ProductForm(forms.ModelForm):
             "category",
             "image",
             "price",
+            "status",
         ]
 
     def __init__(self, *args, **kwargs):

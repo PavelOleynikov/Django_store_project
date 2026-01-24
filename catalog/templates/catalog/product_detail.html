@@ -1,12 +1,20 @@
 {% extends 'catalog/base.html' %}
 {% load static %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}{{ product.name }}{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-8 offset-md-2">
+            <!-- Статус публикации -->
+            <div class="mb-3">
+                {% if product.status == "public" %}
+                <span class="badge bg-success">Опубликовано</span>
+                {% else %}
+                <span class="badge bg-warning">Не опубликовано</span>
+                {% endif %}
+            </div>
             <!-- Карточка товара -->
             <div class="card">
                 <div class="card-header bg-primary text-white">
@@ -27,7 +35,7 @@
 
                         <div class="{% if product.image %}col-md-6{% else %}col-12{% endif %}">
                             <h5 class="text-muted">Описание товара</h5>
-                            <p class="lead">{{ product.description }}</p>
+                            <p class="lead">{{ product.description|default:"Описание отсутствует" }}</p>
 
                             <hr>
 
@@ -44,6 +52,15 @@
                                     {% else %}
                                     <span class="text-muted">Не указана</span>
                                     {% endif %}
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Статус:</strong>
+                                    {% if product.status == "public" %}
+                                    Опубликовано
+                                    {% else %}
+                                    Не опубликовано
+                                    {% endif %}
+                                    <span class="badge bg-info ms-2">Владелец: {{ product.owner.email|default:"Не назначен" }}</span>
                                 </li>
 
                                 <!-- Дата добавления -->
@@ -66,12 +83,30 @@
                                 <button class="btn btn-success ms-2">
                                     В корзину
                                 </button>
+                                <!-- Кнопка редактирования (только для владельца) -->
+                                {% if user.is_authenticated and product.owner == user %}
                                 <a href="{% url 'catalog:product_edit' pk=product.pk %}" class="btn btn-secondary mt-2">
                                     Редактировать
                                 </a>
+                                {% endif %}
+                                <!-- Кнопка удаления (только для владельца) -->
+                                {% if user.is_authenticated and product.owner == user %}
                                 <a href="{% url 'catalog:product_delete' pk=product.pk %}" class="btn btn-danger mt-2">
                                     🗑️ Удалить
                                 </a>
+                                {% endif %}
+                                {% if perms.catalog.can_delete_product and product.owner != user %}
+                                <a href="{% url 'catalog:product_delete' pk=product.pk %}"
+                                   class="btn btn-outline-danger mt-2">
+                                    🗑️ Удалить (как модератор)
+                                </a>
+                                {% endif %}
+                                <!-- Кнопка отмены публикации (только для модераторов) -->
+                                {% if perms.catalog.can_unpublish_product %}
+                                <a href="{% url 'catalog:product_unpublish' pk=product.pk %}" class="btn btn-warning">
+                                    ⏸️ Отменить публикацию
+                                </a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
