@@ -2,10 +2,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.views.generic import ListView, DetailView, View, CreateView, UpdateView, DeleteView
 
 from catalog.forms import ProductForm
 from catalog.models import Product
+from catalog.services import get_products_from_cache
 
 
 class OwnerRequiredMixin:
@@ -65,23 +68,27 @@ class CatalogListView(ListView):
     context_object_name = "products"
 
     def get_queryset(self):
+
+        # Получаем ВСЕ продукты из кеша или БД
+        all_products = get_products_from_cache()
+
         # СУПЕРПОЛЬЗОВАТЕЛЬ видит ВСЕ продукты
         if self.request.user.is_superuser:
-            return Product.objects.all()
+            return all_products
 
         # МОДЕРАТОРЫ (с правами) видят ВСЕ продукты
         if self.request.user.is_authenticated and (
             self.request.user.has_perm("catalog.can_unpublish_product")
             or self.request.user.has_perm("catalog.can_delete_product")
         ):
-            return Product.objects.all()
+            return all_products
 
         # ОБЫЧНЫЙ АВТОРИЗОВАННЫЙ пользователь видит только опубликованные продукты
         if self.request.user.is_authenticated:
-            return Product.objects.filter(status="public")
+            return all_products.filter(status="public")
 
         # НЕАВТОРИЗОВАННЫЙ пользователь видит только опубликованные
-        return Product.objects.filter(status="public")
+        return all_products.filter(status="public")
 
     def get_context_data(self, **kwargs):
 
@@ -108,6 +115,7 @@ class ContactsView(View):
         return HttpResponse(f"Спасибо, {name}! Сообщение получено.")
 
 
+@method_decorator(cache_page(60 * 15), name="dispatch")
 class CatalogDetailView(LoginRequiredMixin, DetailView):
     """Контроллер для отображения детальной информации о продукте"""
 
