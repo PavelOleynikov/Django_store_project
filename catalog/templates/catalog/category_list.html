@@ -1,0 +1,49 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block title %}Категории продуктов{% endblock %}
+
+{% block content %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Категории продуктов</h1>
+    <p class="lead">Выберите интересующую вас категорию</p>
+</div>
+
+<div class="container">
+    <div class="row">
+        {% if categories %}
+        {% for category in categories %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 box-shadow">
+                <div class="card-body">
+                    <h5 class="card-title">{{ category.name }}</h5>
+
+                    {% if category.description %}
+                    <p class="card-text">
+                        {{ category.description|truncatechars:100 }}
+                    </p>
+                    {% else %}
+                    <p class="card-text text-muted">
+                        Описание отсутствует
+                    </p>
+                    {% endif %}
+
+                    <!-- Ссылка на продукты в этой категории -->
+                    <a href="{% url 'catalog:category_detail' pk=category.pk %}"
+                       class="btn btn-outline-primary w-100">
+                        Посмотреть продукты ({{ category.products.count }})
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <h4 class="alert-heading">Категорий пока нет!</h4>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

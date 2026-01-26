@@ -1,0 +1,67 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block title %}Продукты в категории {{ category.name }}{% endblock %}
+
+{% block content %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Продукты в категории "{{ category.name }}"</h1>
+    <a href="{% url 'catalog:category_list' %}" class="btn btn-outline-secondary">
+        ← Вернуться к списку категорий
+    </a>
+</div>
+
+<div class="container">
+    <div class="row">
+        {% if products %}
+        {% for product in products %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 box-shadow">
+                {% if product.image %}
+                <img src="{{ product.image.url }}"
+                     class="card-img-top"
+                     alt="{{ product.name }}"
+                     style="height: 200px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                     style="height: 200px;">
+                    <span class="text-muted">Нет изображения</span>
+                </div>
+                {% endif %}
+
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    {% if user.is_authenticated and product.owner == user %}
+                    <span class="badge bg-primary mb-2">Ваш продукт</span>
+                    {% endif %}
+
+                    <p class="card-text">
+                        {{ product.description|truncatechars:100 }}
+                    </p>
+
+                    <p class="text-muted">
+                        Цена: {{ product.price }} руб.
+                    </p>
+
+                    <a href="{% url 'catalog:product_detail' pk=product.id %}"
+                       class="btn btn-outline-primary w-100">
+                        Подробнее
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <h4 class="alert-heading">Продуктов в этой категории пока нет!</h4>
+                <p>Попробуйте выбрать другую категорию.</p>
+                <a href="{% url 'catalog:category_list' %}" class="btn btn-primary">
+                    Выбрать категорию
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
